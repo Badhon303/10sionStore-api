@@ -1,0 +1,16 @@
+export function slugify(input: string): string {
+  return input
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export function randomSuffix(len = 5): string {
+  return Math.random()
+    .toString(36)
+    .slice(2, 2 + len);
+}
