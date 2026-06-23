@@ -14,10 +14,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT') || 3000;
   const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  const corsOrigins = configService.get<string>('CORS_ORIGINS')?.split(',').map((o) => o.trim()) ?? [];
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:3000'],
+    origin: [frontendUrl, 'http://localhost:3000', ...corsOrigins],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
