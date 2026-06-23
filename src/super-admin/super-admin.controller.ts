@@ -101,6 +101,25 @@ export class SuperAdminController {
     });
   }
 
+  @Patch('stores/:id/permissions')
+  async updateStorePermissions(@Param('id') id: string, @Body() body: any) {
+    return this.prisma.store.update({
+      where: { id },
+      data: { permissions: body.permissions },
+      select: { id: true, name: true, permissions: true },
+    });
+  }
+
+  @Get('stores/:id/permissions')
+  async getStorePermissions(@Param('id') id: string) {
+    const store = await this.prisma.store.findUnique({
+      where: { id },
+      select: { id: true, name: true, permissions: true },
+    });
+    if (!store) return { error: 'Store not found' };
+    return store;
+  }
+
   @Get('orders')
   async recentOrders() {
     return this.prisma.order.findMany({

@@ -71,6 +71,7 @@ model Store {
   isActive    Boolean  @default(true)
   plan        PlanType @default(STARTER)
   settings    Json?
+  permissions Json?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
