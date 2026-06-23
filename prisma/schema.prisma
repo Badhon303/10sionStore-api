@@ -24,6 +24,8 @@ model Merchant {
   stores        Store[]
   refreshTokens RefreshToken[]
   otps          Otp[]
+  storeRequests       StoreRequest[]
+  approvedRequests    StoreRequest[] @relation("ApprovedBy")
 }
 
 model RefreshToken {
@@ -86,6 +88,9 @@ model Store {
   payments      PaymentConfig[]
   notifications Notification[]
   targets       Target[]
+  templateId    String?
+  template      StoreTemplate? @relation(fields: [templateId], references: [id])
+  storeRequest  StoreRequest?
 }
 
 enum PlanType {
@@ -522,4 +527,55 @@ enum TargetPeriod {
   DAILY
   MONTHLY
   YEARLY
+}
+
+// ─── Store Templates (Themes) ───
+model StoreTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  features    Json     // array of feature strings
+  price       Decimal  @db.Decimal(14, 2) @default(0)
+  setupFee    Decimal  @db.Decimal(14, 2) @default(0)
+  monthlyFee  Decimal  @db.Decimal(14, 2) @default(0)
+  thumbnail   String?
+  screenshots Json?    // array of image URLs
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  stores      Store[]  // stores using this template
+  requests    StoreRequest[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ─── Store Requests (Client orders a store) ───
+model StoreRequest {
+  id              String           @id @default(cuid())
+  templateId      String
+  template        StoreTemplate    @relation(fields: [templateId], references: [id])
+  clientName      String
+  clientEmail     String
+  clientPhone     String
+  businessName    String
+  businessType    String?
+  notes           String?
+  status          RequestStatus    @default(PENDING)
+  // After approval:
+  merchantId      String?
+  merchant        Merchant?        @relation(fields: [merchantId], references: [id])
+  storeId         String?  @unique
+  store           Store?           @relation(fields: [storeId], references: [id])
+  approvedById    String?
+  approvedBy      Merchant?        @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
 }
