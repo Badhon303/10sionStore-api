@@ -107,6 +107,7 @@ export class AuthService {
         name: merchant.name,
         email: merchant.email,
         isVerified: merchant.isVerified,
+        role: merchant.role,
       },
       ...tokens,
     };

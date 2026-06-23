@@ -28,6 +28,8 @@ import { LandingPagesModule } from './landing-pages/landing-pages.module';
 import { TargetsModule } from './targets/targets.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { QueueModule } from './queue/queue.module';
+import { SuperAdminModule } from './super-admin/super-admin.module';
+import { StorefrontModule } from './storefront/storefront.module';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -88,6 +90,8 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
     TargetsModule,
     NotificationsModule,
     QueueModule,
+    SuperAdminModule,
+    StorefrontModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
