@@ -65,6 +65,7 @@ export class SuperAdminController {
         isVerified: true,
         isActive: true,
         createdAt: true,
+        stores: { select: { id: true, name: true, slug: true, isActive: true } },
         _count: { select: { stores: true } },
       },
       orderBy: { createdAt: 'desc' },
