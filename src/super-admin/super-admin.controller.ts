@@ -255,4 +255,60 @@ export class SuperAdminController {
       credentials: { email: request.clientEmail, password },
     };
   }
+
+  // ─── Direct Merchant + Store Creation ───
+  @Post('create-merchant')
+  async createMerchant(@Body() body: any) {
+    // Check if merchant already exists
+    const existing = await this.prisma.merchant.findFirst({
+      where: { OR: [{ email: body.email }, { phone: body.phone }] },
+    });
+    if (existing) {
+      return { error: 'Merchant with this email or phone already exists' };
+    }
+
+    const password = body.password || 'Store123!';
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const merchant = await this.prisma.merchant.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        phone: body.phone,
+        passwordHash,
+        role: 'MERCHANT',
+        isVerified: true,
+        isActive: true,
+      },
+    });
+
+    // Create store if storeName provided
+    let store: any = null;
+    if (body.storeName) {
+      const slug = body.storeSlug || body.storeName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      store = await this.prisma.store.create({
+        data: {
+          merchantId: merchant.id,
+          name: body.storeName,
+          slug,
+          description: body.storeDescription || null,
+          currency: 'BDT',
+          plan: body.plan || 'STARTER',
+          isActive: true,
+          ...(body.templateId ? { templateId: body.templateId } : {}),
+        },
+      });
+    }
+
+    return {
+      message: 'Merchant account created successfully.',
+      merchant: { id: merchant.id, name: merchant.name, email: merchant.email, phone: merchant.phone },
+      store: store ? { id: store.id, name: store.name, slug: store.slug } : null,
+      credentials: { email: body.email, password },
+    };
+  }
 }
